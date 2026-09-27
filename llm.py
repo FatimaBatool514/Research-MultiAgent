@@ -1,5 +1,18 @@
 import os
 
+# ---------------------------------------------------------
+# FIX FOR CREWAI + LITELLM + GROQ CACHE BREAKPOINT ISSUE
+# ---------------------------------------------------------
+
+try:
+    import crewai.llms.cache as crew_cache
+
+    crew_cache.mark_cache_breakpoint = lambda msg: msg
+
+except Exception:
+    pass
+
+
 from crewai import LLM
 
 
@@ -7,6 +20,7 @@ MODEL_NAME = "groq/openai/gpt-oss-120b"
 
 
 def get_llm():
+
     api_key = os.getenv("GROQ_API_KEY")
 
     if not api_key:
