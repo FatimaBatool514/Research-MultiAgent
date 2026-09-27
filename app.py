@@ -562,12 +562,10 @@ if start:
             mime="text/markdown",
         )
 
-    except Exception as e:
+   except Exception as e:
+    st.error("Something went wrong while running the research team.")
 
-        st.error(
-            "Something went wrong while running the research team."
-        )
-
+    with st.expander("🔧 Technical details"):
         st.code(str(e))
 
         st.info(
