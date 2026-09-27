@@ -1,9 +1,5 @@
 import os
 
-# ---------------------------------------------------------
-# CREWAI + GROQ CONFIGURATION
-# ---------------------------------------------------------
-
 try:
     import crewai.llms.cache as crew_cache
 
@@ -11,7 +7,6 @@ try:
 
 except Exception:
     pass
-
 
 from crewai import LLM
 
@@ -31,10 +26,6 @@ def get_llm():
     return LLM(
         model=MODEL_NAME,
         api_key=api_key,
-
-        # Keep responses relatively compact.
-        max_tokens=1200,
-
-        # Lower randomness for research.
         temperature=0.1,
+        max_tokens=1200,
     )
