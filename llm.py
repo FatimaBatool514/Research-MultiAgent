@@ -1,7 +1,7 @@
 import os
 
 # ---------------------------------------------------------
-# FIX FOR CREWAI + LITELLM + GROQ CACHE BREAKPOINT ISSUE
+# CREWAI + GROQ CONFIGURATION
 # ---------------------------------------------------------
 
 try:
@@ -31,5 +31,10 @@ def get_llm():
     return LLM(
         model=MODEL_NAME,
         api_key=api_key,
-        temperature=0.2,
+
+        # Keep responses relatively compact.
+        max_tokens=1200,
+
+        # Lower randomness for research.
+        temperature=0.1,
     )
