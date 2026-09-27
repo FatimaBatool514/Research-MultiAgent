@@ -9,6 +9,10 @@ from writer_agent import create_writer_agent
 
 def create_research_crew():
 
+    # ---------------------------------------------------------
+    # CREATE AGENTS
+    # ---------------------------------------------------------
+
     planner = create_planner_agent()
     researcher = create_researcher_agent()
     academic = create_academic_agent()
@@ -42,22 +46,25 @@ def create_research_crew():
         6. Potential theoretical perspectives
         7. Areas requiring recent research
 
-        Make the plan specific to the research topic.
+        Keep the research plan focused and practical.
         """,
 
         expected_output="""
-A concise research plan containing:
+        A concise research plan containing:
 
-1. One main research question
-2. 5-8 sub-questions
-3. 8-12 important keywords
-4. Key concepts
-5. Evidence requirements
-6. Relevant theories
-7. Areas requiring recent research
+        1. One main research question
+        2. Important sub-questions
+        3. Key concepts
+        4. 8-12 important keywords
+        5. Evidence requirements
+        6. Relevant theoretical perspectives
+        7. Areas requiring recent research
 
-Keep the response focused and under approximately 800 words.
-"""
+        Keep the response focused and under approximately 800 words.
+        """,
+
+        agent=planner,
+    )
 
     # ---------------------------------------------------------
     # TASK 2: WEB RESEARCH
@@ -65,36 +72,40 @@ Keep the response focused and under approximately 800 words.
 
     research_task = Task(
         description="""
-        Conduct comprehensive web research based on the research
-        planning information provided in your context.
+        Conduct web research based on the research planning
+        information provided in your context.
 
         Requirements:
 
         - Use the web search tool.
         - Use web pages when useful.
-        - Search multiple queries.
+        - Search multiple relevant queries.
         - Prefer authoritative and recent sources.
-        - Look for academic, institutional and industry sources
-          where appropriate.
+        - Prefer academic, institutional and industry sources.
         - Record source titles and URLs when available.
-        - Extract useful evidence and findings.
+        - Extract important evidence and findings.
         - Do not fabricate sources.
         - Clearly distinguish evidence from interpretation.
+        - Prioritize quality over quantity.
         """,
 
         expected_output="""
-A focused evidence report containing:
+        A focused evidence report containing:
 
-- The most important findings
-- Relevant studies and reports
-- Source titles
-- Source URLs
-- Key evidence
-- Conflicting evidence where relevant
+        - Important findings
+        - Relevant studies or reports
+        - Source titles
+        - Source URLs
+        - Key evidence
+        - Conflicting evidence where relevant
 
-Prioritize quality over quantity.
-Do not produce unnecessary explanations.
-"""
+        Prioritize quality over quantity.
+        Do not produce unnecessary explanations.
+        """,
+
+        agent=researcher,
+        context=[planning_task],
+    )
 
     # ---------------------------------------------------------
     # TASK 3: ACADEMIC ANALYSIS
@@ -117,7 +128,7 @@ Do not produce unnecessary explanations.
         7. Areas of disagreement
         8. Limitations
         9. Research gaps
-        10. Potential future research directions
+        10. Future research directions
 
         Do not invent studies, findings or citations.
 
@@ -126,20 +137,25 @@ Do not produce unnecessary explanations.
         """,
 
         expected_output="""
-A concise critical academic analysis covering:
+        A concise critical academic analysis covering:
 
-1. Major themes
-2. Theories
-3. Variables
-4. Methodologies
-5. Major findings
-6. Agreements and disagreements
-7. Limitations
-8. Research gaps
-9. Future research directions
+        1. Major themes
+        2. Theories
+        3. Variables
+        4. Methodologies
+        5. Major findings
+        6. Agreements and disagreements
+        7. Limitations
+        8. Research gaps
+        9. Future research directions
 
-Focus only on the most important findings.
-"""
+        Focus only on the most important findings.
+        """,
+
+        agent=academic,
+        context=[research_task],
+    )
+
     # ---------------------------------------------------------
     # TASK 4: VALIDATION
     # ---------------------------------------------------------
@@ -158,7 +174,7 @@ Focus only on the most important findings.
         - Overgeneralizations
         - Missing evidence
         - Citation problems
-        - Claims that require additional verification
+        - Claims requiring additional verification
 
         Create four sections:
 
@@ -168,19 +184,27 @@ Focus only on the most important findings.
         4. Additional research or verification needed
 
         Never create fake citations or sources.
+        Do not repeat the entire research evidence.
         """,
 
-       expected_output="""
-A concise quality-control report containing:
+        expected_output="""
+        A concise quality-control report containing:
 
-1. Validated findings
-2. Findings requiring caution
-3. Unsupported claims
-4. Additional verification needed
-5. Source/citation concerns
+        1. Validated findings
+        2. Findings requiring caution
+        3. Unsupported claims
+        4. Additional verification needed
+        5. Source and citation concerns
 
-Do not repeat the entire research evidence.
-"""
+        Do not repeat large sections of the research evidence.
+        """,
+
+        agent=validator,
+        context=[
+            research_task,
+            academic_task,
+        ],
+    )
 
     # ---------------------------------------------------------
     # TASK 5: FINAL WRITING
@@ -188,9 +212,9 @@ Do not repeat the entire research evidence.
 
     writing_task = Task(
         description="""
-        Write the final research report using the research evidence,
-        academic analysis and validation information provided in
-        your context.
+        Write the final research report using the research
+        evidence, academic analysis and validation information
+        provided in your context.
 
         Topic:
         {topic}
@@ -207,21 +231,35 @@ Do not repeat the entire research evidence.
         - Do not introduce unsupported claims.
         - Preserve important source URLs.
         - Clearly identify research gaps.
-        - Distinguish established findings from areas of uncertainty.
-        - Base the report strictly on the validated research material.
-
-        Produce a useful report for a researcher.
+        - Distinguish established findings from uncertainty.
+        - Base the report strictly on the validated material.
+        - Do not unnecessarily repeat information.
         """,
 
-       expected_output="""
-A polished research report based on the validated evidence.
+        expected_output="""
+        A polished and structured academic research report containing:
 
-Use clear academic language and useful headings.
-Do not repeat unnecessary information.
-Do not invent citations.
+        - Introduction
+        - Major findings and themes
+        - Critical analysis
+        - Relevant theories and variables
+        - Research evidence
+        - Limitations
+        - Research gaps
+        - Future research directions
+        - Important source URLs
 
-Keep the report focused and concise.
-"""
+        Keep the report focused and concise.
+        """,
+
+        agent=writer,
+        context=[
+            research_task,
+            academic_task,
+            validation_task,
+        ],
+    )
+
     # ---------------------------------------------------------
     # CREATE CREW
     # ---------------------------------------------------------
@@ -234,7 +272,6 @@ Keep the report focused and concise.
             validator,
             writer,
         ],
-
         tasks=[
             planning_task,
             research_task,
@@ -242,9 +279,7 @@ Keep the report focused and concise.
             validation_task,
             writing_task,
         ],
-
         process=Process.sequential,
-
         verbose=True,
     )
 
