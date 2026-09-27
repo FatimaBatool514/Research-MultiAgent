@@ -15,10 +15,15 @@ def create_research_crew():
     validator = create_validator_agent()
     writer = create_writer_agent()
 
+    # ---------------------------------------------------------
+    # TASK 1: RESEARCH PLANNING
+    # ---------------------------------------------------------
+
     planning_task = Task(
         description="""
         Create a detailed research plan for the following topic:
 
+        Topic:
         {topic}
 
         Research type:
@@ -28,6 +33,7 @@ def create_research_crew():
         {depth}
 
         Provide:
+
         1. Main research question
         2. Important sub-questions
         3. Key concepts
@@ -35,52 +41,73 @@ def create_research_crew():
         5. Evidence that should be collected
         6. Potential theoretical perspectives
         7. Areas requiring recent research
+
+        Make the plan specific to the research topic.
         """,
 
-        expected_output=(
-            "A detailed and logically organized research plan "
-            "containing research questions, keywords, concepts "
-            "and evidence requirements."
-        ),
+        expected_output="""
+        A detailed and logically organized research plan containing:
+
+        - Main research question
+        - Sub-questions
+        - Key concepts
+        - Search keywords
+        - Evidence requirements
+        - Relevant theoretical perspectives
+        - Areas requiring recent research
+        """,
 
         agent=planner,
     )
 
+    # ---------------------------------------------------------
+    # TASK 2: WEB RESEARCH
+    # ---------------------------------------------------------
+
     research_task = Task(
         description="""
-        Using the research plan below, conduct comprehensive web research.
-
-        Research Plan:
-        {planning_task}
-
-        Find reliable and relevant information.
+        Conduct comprehensive web research based on the research
+        planning information provided in your context.
 
         Requirements:
-        - Use the search tool.
+
+        - Use the web search tool.
         - Use web pages when useful.
-        - Prefer authoritative and recent sources.
         - Search multiple queries.
+        - Prefer authoritative and recent sources.
+        - Look for academic, institutional and industry sources
+          where appropriate.
         - Record source titles and URLs when available.
+        - Extract useful evidence and findings.
         - Do not fabricate sources.
         - Clearly distinguish evidence from interpretation.
         """,
 
-        expected_output=(
-            "A detailed research evidence report containing source "
-            "information, findings, important facts and URLs."
-        ),
+        expected_output="""
+        A detailed research evidence report containing:
+
+        - Important findings
+        - Key facts
+        - Relevant studies or reports
+        - Source titles
+        - Source URLs
+        - Evidence supporting major findings
+        - Conflicting evidence where applicable
+        """,
 
         agent=researcher,
-
         context=[planning_task],
     )
 
+    # ---------------------------------------------------------
+    # TASK 3: ACADEMIC ANALYSIS
+    # ---------------------------------------------------------
+
     academic_task = Task(
         description="""
-        Analyze the research evidence below.
+        Analyze the research evidence provided in your context.
 
-        Research Evidence:
-        {research_task}
+        Conduct a critical academic analysis.
 
         Identify:
 
@@ -95,30 +122,41 @@ def create_research_crew():
         9. Research gaps
         10. Potential future research directions
 
-        Do not invent studies or findings.
+        Do not invent studies, findings or citations.
+
+        Base the analysis only on the research evidence available
+        in your context.
         """,
 
-        expected_output=(
-            "A critical academic analysis of the collected evidence "
-            "including themes, theories, findings and research gaps."
-        ),
+        expected_output="""
+        A critical academic analysis of the collected research
+        evidence including:
+
+        - Major themes
+        - Theories
+        - Variables
+        - Methodologies
+        - Major findings
+        - Agreements and disagreements
+        - Limitations
+        - Research gaps
+        - Future research directions
+        """,
 
         agent=academic,
-
-        context=[planning_task, research_task],
+        context=[research_task],
     )
+
+    # ---------------------------------------------------------
+    # TASK 4: VALIDATION
+    # ---------------------------------------------------------
 
     validation_task = Task(
         description="""
-        Critically validate the research materials.
+        Critically validate the research evidence and academic
+        analysis provided in your context.
 
-        Research Evidence:
-        {research_task}
-
-        Academic Analysis:
-        {academic_task}
-
-        Check:
+        Check for:
 
         - Unsupported claims
         - Weak evidence
@@ -126,46 +164,48 @@ def create_research_crew():
         - Contradictions
         - Overgeneralizations
         - Missing evidence
-        - Citation/source problems
+        - Citation problems
+        - Claims that require additional verification
 
-        Create a list of:
+        Create four sections:
+
         1. Validated findings
         2. Findings requiring caution
         3. Unsupported claims to remove
-        4. Additional research needed
+        4. Additional research or verification needed
 
-        Never create fake citations.
+        Never create fake citations or sources.
         """,
 
-        expected_output=(
-            "A research quality-control report clearly identifying "
-            "validated evidence, limitations and claims requiring "
-            "additional verification."
-        ),
+        expected_output="""
+        A research quality-control report containing:
+
+        1. Validated findings
+        2. Findings requiring caution
+        3. Unsupported claims
+        4. Additional verification needed
+        5. Source and citation concerns
+        """,
 
         agent=validator,
-
         context=[research_task, academic_task],
     )
 
+    # ---------------------------------------------------------
+    # TASK 5: FINAL WRITING
+    # ---------------------------------------------------------
+
     writing_task = Task(
         description="""
-        Write the final research report using the validated material.
+        Write the final research report using the research evidence,
+        academic analysis and validation information provided in
+        your context.
 
         Topic:
         {topic}
 
         Research Type:
         {research_type}
-
-        Academic Analysis:
-        {academic_task}
-
-        Validation Report:
-        {validation_task}
-
-        Research Evidence:
-        {research_task}
 
         Requirements:
 
@@ -176,23 +216,37 @@ def create_research_crew():
         - Do not introduce unsupported claims.
         - Preserve important source URLs.
         - Clearly identify research gaps.
-        - Make the report useful for a researcher.
+        - Distinguish established findings from areas of uncertainty.
+        - Base the report strictly on the validated research material.
+
+        Produce a useful report for a researcher.
         """,
 
-        expected_output=(
-            "A polished, structured research report based strictly "
-            "on the validated evidence."
-        ),
+        expected_output="""
+        A polished and structured academic research report containing:
+
+        - Introduction
+        - Major findings/themes
+        - Critical analysis
+        - Relevant theories and variables
+        - Research evidence
+        - Limitations
+        - Research gaps
+        - Future research directions
+        - Source URLs where available
+        """,
 
         agent=writer,
-
         context=[
-            planning_task,
             research_task,
             academic_task,
             validation_task,
         ],
     )
+
+    # ---------------------------------------------------------
+    # CREATE CREW
+    # ---------------------------------------------------------
 
     crew = Crew(
         agents=[
