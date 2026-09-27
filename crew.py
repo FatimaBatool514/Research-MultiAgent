@@ -46,19 +46,18 @@ def create_research_crew():
         """,
 
         expected_output="""
-        A detailed and logically organized research plan containing:
+A concise research plan containing:
 
-        - Main research question
-        - Sub-questions
-        - Key concepts
-        - Search keywords
-        - Evidence requirements
-        - Relevant theoretical perspectives
-        - Areas requiring recent research
-        """,
+1. One main research question
+2. 5-8 sub-questions
+3. 8-12 important keywords
+4. Key concepts
+5. Evidence requirements
+6. Relevant theories
+7. Areas requiring recent research
 
-        agent=planner,
-    )
+Keep the response focused and under approximately 800 words.
+"""
 
     # ---------------------------------------------------------
     # TASK 2: WEB RESEARCH
@@ -84,20 +83,18 @@ def create_research_crew():
         """,
 
         expected_output="""
-        A detailed research evidence report containing:
+A focused evidence report containing:
 
-        - Important findings
-        - Key facts
-        - Relevant studies or reports
-        - Source titles
-        - Source URLs
-        - Evidence supporting major findings
-        - Conflicting evidence where applicable
-        """,
+- The most important findings
+- Relevant studies and reports
+- Source titles
+- Source URLs
+- Key evidence
+- Conflicting evidence where relevant
 
-        agent=researcher,
-        context=[planning_task],
-    )
+Prioritize quality over quantity.
+Do not produce unnecessary explanations.
+"""
 
     # ---------------------------------------------------------
     # TASK 3: ACADEMIC ANALYSIS
@@ -129,24 +126,20 @@ def create_research_crew():
         """,
 
         expected_output="""
-        A critical academic analysis of the collected research
-        evidence including:
+A concise critical academic analysis covering:
 
-        - Major themes
-        - Theories
-        - Variables
-        - Methodologies
-        - Major findings
-        - Agreements and disagreements
-        - Limitations
-        - Research gaps
-        - Future research directions
-        """,
+1. Major themes
+2. Theories
+3. Variables
+4. Methodologies
+5. Major findings
+6. Agreements and disagreements
+7. Limitations
+8. Research gaps
+9. Future research directions
 
-        agent=academic,
-        context=[research_task],
-    )
-
+Focus only on the most important findings.
+"""
     # ---------------------------------------------------------
     # TASK 4: VALIDATION
     # ---------------------------------------------------------
@@ -177,19 +170,17 @@ def create_research_crew():
         Never create fake citations or sources.
         """,
 
-        expected_output="""
-        A research quality-control report containing:
+       expected_output="""
+A concise quality-control report containing:
 
-        1. Validated findings
-        2. Findings requiring caution
-        3. Unsupported claims
-        4. Additional verification needed
-        5. Source and citation concerns
-        """,
+1. Validated findings
+2. Findings requiring caution
+3. Unsupported claims
+4. Additional verification needed
+5. Source/citation concerns
 
-        agent=validator,
-        context=[research_task, academic_task],
-    )
+Do not repeat the entire research evidence.
+"""
 
     # ---------------------------------------------------------
     # TASK 5: FINAL WRITING
@@ -222,28 +213,15 @@ def create_research_crew():
         Produce a useful report for a researcher.
         """,
 
-        expected_output="""
-        A polished and structured academic research report containing:
+       expected_output="""
+A polished research report based on the validated evidence.
 
-        - Introduction
-        - Major findings/themes
-        - Critical analysis
-        - Relevant theories and variables
-        - Research evidence
-        - Limitations
-        - Research gaps
-        - Future research directions
-        - Source URLs where available
-        """,
+Use clear academic language and useful headings.
+Do not repeat unnecessary information.
+Do not invent citations.
 
-        agent=writer,
-        context=[
-            research_task,
-            academic_task,
-            validation_task,
-        ],
-    )
-
+Keep the report focused and concise.
+"""
     # ---------------------------------------------------------
     # CREATE CREW
     # ---------------------------------------------------------
