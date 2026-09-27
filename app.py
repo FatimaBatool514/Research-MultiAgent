@@ -495,13 +495,59 @@ if start:
         # Run Crew
         # -----------------------------
 
-        result = crew.kickoff(
-            inputs={
-                "topic": topic,
-                "research_type": research_type,
-                "depth": depth,
-            }
-        )
+        try:
+    result = crew.kickoff(
+        inputs={
+            "topic": topic,
+            "research_type": research_type,
+            "depth": depth,
+        }
+    )
+
+    # Mark all agents as completed
+    for agent_name in agent_names:
+        agent_status[agent_name] = "completed"
+
+    progress_bar.progress(100)
+
+    st.success("Research completed successfully!")
+
+    # ---------------------------------------------------------
+    # FINAL REPORT
+    # ---------------------------------------------------------
+
+    st.markdown(
+        """
+        <div class="section-title">
+            📄 Final Research Report
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    final_output = result.raw if hasattr(result, "raw") else str(result)
+
+    st.markdown(
+        f"""
+        <div class="report-container">
+            {final_output}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.download_button(
+        label="⬇️ Download Research Report",
+        data=final_output,
+        file_name="research_report.txt",
+        mime="text/plain",
+    )
+
+except Exception as e:
+    st.error("Something went wrong while running the research team.")
+
+    with st.expander("🔧 Technical details"):
+        st.code(str(e))
 
         # -----------------------------
         # Agent 5
