@@ -23,8 +23,6 @@ st.markdown(
     """
     <style>
 
-    /* ---------- GLOBAL ---------- */
-
     .stApp {
         background:
             radial-gradient(
@@ -46,8 +44,6 @@ st.markdown(
         padding-top: 2rem;
         padding-bottom: 4rem;
     }
-
-    /* ---------- HEADER ---------- */
 
     .hero {
         padding: 2.5rem 2.5rem 2.2rem 2.5rem;
@@ -91,17 +87,6 @@ st.markdown(
         line-height: 1.7;
     }
 
-    /* ---------- CARDS ---------- */
-
-    .glass-card {
-        background: rgba(15, 23, 42, 0.68);
-        border: 1px solid rgba(255,255,255,0.07);
-        border-radius: 22px;
-        padding: 1.25rem;
-        box-shadow: 0 15px 50px rgba(0,0,0,0.18);
-        backdrop-filter: blur(16px);
-    }
-
     .metric-card {
         background: rgba(15,23,42,0.75);
         border: 1px solid rgba(255,255,255,0.07);
@@ -119,8 +104,6 @@ st.markdown(
         color: #94a3b8;
         font-size: 0.8rem;
     }
-
-    /* ---------- AGENTS ---------- */
 
     .agent-card {
         display: flex;
@@ -166,8 +149,6 @@ st.markdown(
         margin-top: 2px;
     }
 
-    /* ---------- OUTPUT ---------- */
-
     .result-header {
         padding: 1rem 1.2rem;
         border-radius: 16px;
@@ -176,8 +157,6 @@ st.markdown(
         margin-bottom: 1rem;
     }
 
-    /* ---------- BUTTON ---------- */
-
     .stButton > button {
         width: 100%;
         border-radius: 14px;
@@ -185,8 +164,6 @@ st.markdown(
         font-weight: 750;
         border: 1px solid rgba(255,255,255,0.1);
     }
-
-    /* ---------- SIDEBAR ---------- */
 
     section[data-testid="stSidebar"] {
         background: #090d18;
@@ -271,9 +248,7 @@ with st.sidebar:
 
     st.markdown("---")
 
-    st.caption(
-        "Powered by CrewAI + Groq GPT-OSS 120B"
-    )
+    st.caption("Powered by CrewAI + Groq GPT-OSS 120B")
 
 
 # ---------------------------------------------------------
@@ -292,6 +267,10 @@ topic = st.text_area(
     label_visibility="collapsed",
 )
 
+
+# ---------------------------------------------------------
+# METRICS
+# ---------------------------------------------------------
 
 col1, col2, col3 = st.columns(3)
 
@@ -405,9 +384,7 @@ if start:
 
     if not topic.strip():
 
-        st.warning(
-            "Please enter a research topic first."
-        )
+        st.warning("Please enter a research topic first.")
 
         st.stop()
 
@@ -417,9 +394,9 @@ if start:
 
     try:
 
-        # -----------------------------
-        # Agent 1
-        # -----------------------------
+        # -------------------------------------------------
+        # CREATE CREW
+        # -------------------------------------------------
 
         agent_placeholder.markdown(
             render_agents(
@@ -437,139 +414,27 @@ if start:
 
         crew = create_research_crew()
 
-        # -----------------------------
-        # Agent 2
-        # -----------------------------
-
-        agent_placeholder.markdown(
-            render_agents(
-                active_index=1,
-                completed_index=0,
-            ),
-            unsafe_allow_html=True,
-        )
+        # -------------------------------------------------
+        # RUN CREW
+        # -------------------------------------------------
 
         status_box.info(
-            "🔎 Web Researcher is searching for evidence..."
+            "🔬 Research team is working through the research pipeline..."
         )
 
-        progress.progress(25)
+        progress.progress(20)
 
-        # -----------------------------
-        # Agent 3
-        # -----------------------------
-
-        agent_placeholder.markdown(
-            render_agents(
-                active_index=2,
-                completed_index=1,
-            ),
-            unsafe_allow_html=True,
+        result = crew.kickoff(
+            inputs={
+                "topic": topic,
+                "research_type": research_type,
+                "depth": depth,
+            }
         )
 
-        status_box.info(
-            "📚 Academic Analyst is analyzing the research..."
-        )
-
-        progress.progress(45)
-
-        # -----------------------------
-        # Agent 4
-        # -----------------------------
-
-        agent_placeholder.markdown(
-            render_agents(
-                active_index=3,
-                completed_index=2,
-            ),
-            unsafe_allow_html=True,
-        )
-
-        status_box.info(
-            "🛡️ Citation Validator is checking research quality..."
-        )
-
-        progress.progress(70)
-
-        # -----------------------------
-        # Run Crew
-        # -----------------------------
-
-        try:
-    result = crew.kickoff(
-        inputs={
-            "topic": topic,
-            "research_type": research_type,
-            "depth": depth,
-        }
-    )
-
-    # Mark all agents as completed
-    for agent_name in agent_names:
-        agent_status[agent_name] = "completed"
-
-    progress_bar.progress(100)
-
-    st.success("Research completed successfully!")
-
-    # ---------------------------------------------------------
-    # FINAL REPORT
-    # ---------------------------------------------------------
-
-    st.markdown(
-        """
-        <div class="section-title">
-            📄 Final Research Report
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    final_output = result.raw if hasattr(result, "raw") else str(result)
-
-    st.markdown(
-        f"""
-        <div class="report-container">
-            {final_output}
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.download_button(
-        label="⬇️ Download Research Report",
-        data=final_output,
-        file_name="research_report.txt",
-        mime="text/plain",
-    )
-
-except Exception as e:
-    st.error("Something went wrong while running the research team.")
-
-    with st.expander("🔧 Technical details"):
-        st.code(str(e))
-
-        # -----------------------------
-        # Agent 5
-        # -----------------------------
-
-        agent_placeholder.markdown(
-            render_agents(
-                active_index=4,
-                completed_index=3,
-            ),
-            unsafe_allow_html=True,
-        )
-
-        status_box.info(
-            "✍️ Research Writer is preparing the final report..."
-        )
-
-        progress.progress(90)
-
-        # -----------------------------
-        # Complete
-        # -----------------------------
+        # -------------------------------------------------
+        # COMPLETE AGENTS
+        # -------------------------------------------------
 
         agent_placeholder.markdown(
             render_agents(
@@ -582,8 +447,12 @@ except Exception as e:
         progress.progress(100)
 
         status_box.success(
-            "Research completed successfully."
+            "✅ Research completed successfully."
         )
+
+        # -------------------------------------------------
+        # FINAL REPORT
+        # -------------------------------------------------
 
         st.markdown("---")
 
@@ -599,22 +468,36 @@ except Exception as e:
             unsafe_allow_html=True,
         )
 
-        st.markdown(str(result))
+        final_output = (
+            result.raw
+            if hasattr(result, "raw")
+            else str(result)
+        )
+
+        st.markdown(final_output)
+
+        # -------------------------------------------------
+        # DOWNLOAD
+        # -------------------------------------------------
 
         st.download_button(
             label="⬇️ Download Research Report",
-            data=str(result),
+            data=final_output,
             file_name="research_report.md",
             mime="text/markdown",
         )
 
-   except Exception as e:
-    st.error("Something went wrong while running the research team.")
+    except Exception as e:
 
-    with st.expander("🔧 Technical details"):
-        st.code(str(e))
+        st.error(
+            "Something went wrong while running the research team."
+        )
 
-        st.info(
-            "Check your GROQ_API_KEY and SERPER_API_KEY in "
-            "Streamlit Secrets, then redeploy."
+        with st.expander("🔧 Technical details"):
+
+            st.code(str(e))
+
+        st.warning(
+            "The error is shown above. Check the technical details "
+            "before changing your API keys."
         )
